@@ -49,3 +49,16 @@ def get_aircrafts(after=None, limit=None):
     
     response = requests.get(url, headers=headers, params=params)
     return response.json()
+
+def get_aircraft_by_id(id):
+    url = f"https://api.duffel.com/air/aircraft/{id}"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    params = {}
+    
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()
