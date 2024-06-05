@@ -2,7 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse
 from .decorator import require_auth
-from .service import get_airlines, get_airline_by_id, get_aircrafts, get_aircraft_by_id, get_airports, get_airport_by_id, get_cities
+from .service import get_airlines, get_airline_by_id, get_aircrafts, get_aircraft_by_id, get_airports, get_airport_by_id, get_cities, get_city_by_id, get_places
 import json
 
 @csrf_exempt
@@ -145,3 +145,46 @@ def get_cities_view(request):
         return JsonResponse({'success': False, 'error': 'No data found'}, status=404)
         
     return JsonResponse({'success': True, 'result': {'meta': response['meta'], 'data': cities_data}})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def get_city_view(request, pk):
+    response = get_city_by_id(id=pk)
+
+    cities_data = []
+    if 'data' in response:
+        cities_data.append({
+            'id': response['data'].get('id', 'No ID'),
+            'name': response['data'].get('name', 'No Name'),  
+            'iata_country_code': response['data'].get('iata_country_code', 'No IATA Country Code'),  
+            'iata_code': response['data'].get('iata_code', 'No IATA Code'),  
+        })
+    else:
+        return JsonResponse({'success': False, 'error': 'No data found'}, status=404)
+        
+    return JsonResponse({'success': True, 'result': cities_data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def get_places_view(request):
+    name=None
+    rad=None
+    lat=None
+    lng=None
+
+    try:
+        data = json.loads(request.body)
+        name = data.get('name', name)
+        rad = data.get('rad', rad)
+        lat = data.get('lat', lat)
+        lng = data.get('lng', lng)
+    except json.JSONDecodeError:
+        pass
+    place_data = get_places(name=name, rad=rad, lat=lat, lng=lng)
+
+    if not place_data:
+        return JsonResponse({'success': False, 'error': 'No data found'}, status=404)
+
+    return JsonResponse({'success': True, 'result': place_data})

@@ -111,3 +111,37 @@ def get_cities(after=None, limit=None):
     
     response = requests.get(url, headers=headers, params=params)
     return response.json()
+
+def get_city_by_id(id):
+    url = f"https://api.duffel.com/air/cities/{id}"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    params = {}
+    
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()
+
+def get_places(name=None, rad=None, lat=None, lng=None):
+    url = "https://api.duffel.com/places/suggestions"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    params = {}
+    if name is not None:
+        params["name"] = name
+    if rad is not None:
+        params["rad"] = rad
+    if lat is not None:
+        params["lat"] = lat
+    if lng is not None:
+        params["lng"] = lng
+    
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()

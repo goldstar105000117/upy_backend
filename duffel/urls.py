@@ -9,4 +9,6 @@ urlpatterns = [
     path('airport/', views.get_airports_view, name='get_airports'),
     path('airport/<str:pk>/', views.get_airport_view, name='get_airport_by_id'),
     path('cities/', views.get_cities_view, name='get_cities'),
+    path('cities/<str:pk>/', views.get_city_view, name='get_cities_by_id'),
+    path('places/', views.get_places_view, name='get_places'),
 ]
