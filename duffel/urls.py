@@ -11,4 +11,5 @@ urlpatterns = [
     path('cities/', views.get_cities_view, name='get_cities'),
     path('cities/<str:pk>/', views.get_city_view, name='get_cities_by_id'),
     path('places/', views.get_places_view, name='get_places'),
+    path('offer_request/', views.get_offer_requests_view, name='get_offer_requests'),
 ]

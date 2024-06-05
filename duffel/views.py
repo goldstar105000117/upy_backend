@@ -2,7 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse
 from .decorator import require_auth
-from .service import get_airlines, get_airline_by_id, get_aircrafts, get_aircraft_by_id, get_airports, get_airport_by_id, get_cities, get_city_by_id, get_places
+from .service import get_airlines, get_airline_by_id, get_aircrafts, get_aircraft_by_id, get_airports, get_airport_by_id, get_cities, get_city_by_id, get_places, get_offer_requests
 import json
 
 @csrf_exempt
@@ -188,3 +188,24 @@ def get_places_view(request):
         return JsonResponse({'success': False, 'error': 'No data found'}, status=404)
 
     return JsonResponse({'success': True, 'result': place_data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def get_offer_requests_view(request):
+    after = None
+    limit = 50
+
+    try:
+        data = json.loads(request.body)
+        after = data.get('after', after)
+        limit = data.get('limit', limit)
+    except json.JSONDecodeError:
+        pass
+
+    offer_requests_data = get_offer_requests(after=after, limit=limit)
+
+    if not offer_requests_data:
+        return JsonResponse({'success': False, 'error': 'No data found'}, status=404)
+
+    return JsonResponse({'success': True, 'result': offer_requests_data})
