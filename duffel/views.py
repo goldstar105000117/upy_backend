@@ -2,7 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse
 from .decorator import require_auth
-from .service import get_airlines, get_airline_by_id, get_aircrafts, get_aircraft_by_id, get_airports, get_airport_by_id, get_cities, get_city_by_id, get_places, get_offer_requests
+from .service import get_duffel, create_duffel_offer_request, get_offer_request_by_id, get_airlines, get_airline_by_id, get_aircrafts, get_aircraft_by_id, get_airports, get_airport_by_id, get_cities, get_city_by_id, get_places, get_offer_requests
 import json
 
 @csrf_exempt
@@ -209,3 +209,31 @@ def get_offer_requests_view(request):
         return JsonResponse({'success': False, 'error': 'No data found'}, status=404)
 
     return JsonResponse({'success': True, 'result': offer_requests_data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def create_offer_request_view(request):
+    try:
+        data = json.loads(request.body)
+
+        slices = data.get('slices')
+        passengers = data.get('passengers')
+        max_connections = data.get('max_connections')
+        cabin_class = data.get('cabin_class')
+        
+        response = create_duffel_offer_request('true', 10000, slices=slices, passengers=passengers, max_connections=max_connections, cabin_class=cabin_class)
+        return response
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
+    except KeyError as e:
+        return JsonResponse({'success': False, 'error': f'Missing key {e}'}, status=400)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def get_offer_request_view(request, pk):
+    offer_request_data = get_offer_request_by_id(id=pk)
+    if offer_request_data.get('errors'):
+        return JsonResponse({'success': False, 'error': offer_request_data['errors'][0]['title']}, status=404)
+    return JsonResponse({'success': True, 'result': offer_request_data})
