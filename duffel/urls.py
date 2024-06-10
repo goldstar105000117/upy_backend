@@ -14,4 +14,9 @@ urlpatterns = [
     path('offer_request/', views.get_offer_requests_view, name='get_offer_requests'),
     path('offer_request/create/', views.create_offer_request_view, name='create_offer_request'),
     path('offer_request/<str:pk>/', views.get_offer_request_view, name='get_offer_request'),
+    path('offers/', views.get_offers_view, name='get_offers'),
+    path('offers/<str:pk>/', views.get_offer_view, name='get_offer'),
+    path('offers/passenger/update/', views.update_passenger_details_view, name='update_passenger_details'),
+    path('order/create/', views.create_order_view, name='create_order'),
+    path('order/', views.get_orders_view, name='get_orders'),
 ]
