@@ -2,7 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse
 from .decorator import require_auth
-from .service import get_duffel, create_duffel_offer_request, get_offer_request_by_id, get_airlines, get_airline_by_id, get_aircrafts, get_aircraft_by_id, get_airports, get_airport_by_id, get_cities, get_city_by_id, get_places, get_offer_requests
+from .service import get_duffel, get_orders, create_order, update_passenger_details, get_offers, get_offer_by_id, create_duffel_offer_request, get_offer_request_by_id, get_airlines, get_airline_by_id, get_aircrafts, get_aircraft_by_id, get_airports, get_airport_by_id, get_cities, get_city_by_id, get_places, get_offer_requests
 import json
 
 @csrf_exempt
@@ -237,3 +237,128 @@ def get_offer_request_view(request, pk):
     if offer_request_data.get('errors'):
         return JsonResponse({'success': False, 'error': offer_request_data['errors'][0]['title']}, status=404)
     return JsonResponse({'success': True, 'result': offer_request_data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def get_offers_view(request):
+    after = None
+    limit = 50
+    sort = 'total_amount'
+    max_connections = 2
+
+    try:
+        data = json.loads(request.body)
+        after = data.get('after', after)
+        limit = data.get('limit', limit)
+        sort = data.get('sort', sort)
+        max_connections = data.get('max_connections', max_connections)
+        offer_request_id = data.get('offer_request_id', None)
+        
+        if not offer_request_id:
+            return JsonResponse({'success': False, 'error': 'Missing offer_request_id'}, status=400)
+    except json.JSONDecodeError:
+        pass
+
+    offers_data = get_offers(after=after, limit=limit, offer_request_id=offer_request_id, sort=sort, max_connections=max_connections)
+
+    if not offers_data:
+        return JsonResponse({'success': False, 'error': 'No data found'}, status=404)
+
+    return JsonResponse({'success': True, 'result': offers_data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def get_offer_view(request, pk):
+    offer_data = get_offer_by_id(id=pk)
+    if offer_data.get('errors'):
+        return JsonResponse({'success': False, 'error': offer_data['errors'][0]['title']}, status=404)
+    return JsonResponse({'success': True, 'result': offer_data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def update_passenger_details_view(request):
+    try:
+        data = json.loads(request.body)
+        offer_id = data.get('offer_id', None)
+        offer_passenger_id = data.get('offer_passenger_id', None)
+        loyalty_accounts = data.get('loyalty_accounts', [])
+        given_name = data.get('given_name', '')
+        family_name = data.get('family_name', '')
+        print(offer_id, offer_passenger_id)
+        if not offer_id or offer_id == '':
+            return JsonResponse({'success': False, 'error': 'Missing offer_id'}, status=400)
+        if not offer_passenger_id or offer_passenger_id == '':
+            return JsonResponse({'success': False, 'error': 'Missing offer_passenger_id'}, status=400)
+    except json.JSONDecodeError as e:
+        return JsonResponse({'success': False, 'error': e}, status=400)
+
+    passenger_details_data = update_passenger_details(offer_id=offer_id, offer_passenger_id=offer_passenger_id, loyalty_accounts=loyalty_accounts, given_name=given_name, family_name=family_name)
+    
+    if passenger_details_data.get('errors'):
+        return JsonResponse({'success': False, 'error': passenger_details_data['errors'][0]['title']}, status=404)
+
+    return JsonResponse({'success': True, 'result': passenger_details_data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def create_order_view(request):
+    try:
+        data = json.loads(request.body)
+        metadata = data.get('metadata', None)
+        passengers = data.get('passengers')
+        if not passengers or not isinstance(passengers, list):
+            return JsonResponse({'success': False, 'error': 'Invalid or missing passengers data'}, status=400)
+        
+        for passenger in passengers:
+            required_fields = ['id', 'given_name', 'family_name', 'email', 'phone_number']
+            for field in required_fields:
+                if not passenger.get(field):
+                    return JsonResponse({'success': False, 'error': f'Missing {field} in passenger data'}, status=400)
+
+        payments = data.get('payments')
+        if not payments or not isinstance(payments, list) or not all('type' in payment and 'amount' in payment and 'currency' in payment for payment in payments):
+            return JsonResponse({'success': False, 'error': 'Invalid or missing payments data'}, status=400)
+        
+        selected_offers = data.get('selected_offers')
+        if not selected_offers or not isinstance(selected_offers, list) or not all(isinstance(offer, str) for offer in selected_offers):
+            return JsonResponse({'success': False, 'error': 'Invalid or missing selected offers data'}, status=400)
+
+        order_type = data.get('type')
+        if not order_type or not isinstance(order_type, str):
+            return JsonResponse({'success': False, 'error': 'Invalid or missing type data'}, status=400)
+
+    except json.JSONDecodeError as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+    order_data = create_order(metadata=metadata, passengers=passengers, payments=payments, selected_offers=selected_offers, order_type=order_type)
+    if order_data.get('errors'):
+        return JsonResponse({'success': False, 'error': order_data}, status=404)
+
+    return JsonResponse({'success': True, 'result': order_data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def get_orders_view(request):
+    after = None
+    limit = 50
+
+    try:
+        data = json.loads(request.body)
+        after = data.get('after', after)
+        limit = data.get('limit', limit)
+    except json.JSONDecodeError:
+        pass
+
+    orders_data = get_orders(after=after, limit=limit)
+
+    if not orders_data:
+        return JsonResponse({'success': False, 'error': 'No data found'}, status=404)
+
+    return JsonResponse({'success': True, 'result': orders_data})
