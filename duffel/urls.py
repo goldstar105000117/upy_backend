@@ -19,4 +19,5 @@ urlpatterns = [
     path('offers/passenger/update/', views.update_passenger_details_view, name='update_passenger_details'),
     path('order/create/', views.create_order_view, name='create_order'),
     path('order/', views.get_orders_view, name='get_orders'),
+    path('order/<str:pk>/', views.get_order_view, name='get_order'),
 ]
