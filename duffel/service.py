@@ -321,3 +321,52 @@ def get_order_by_id(id):
     
     response = requests.get(url, headers=headers, params=params)
     return response.json()
+    
+def get_available_services_by_order_id(id):
+    url = f"https://api.duffel.com/air/orders/{id}/available_services"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    params = {}
+    
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()
+def add_service_to_order(id, payment, add_services):
+    url = f"https://api.duffel.com/air/orders/{id}/services"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    
+    data = {
+        "data": {
+            "payment": payment,
+            "add_services": add_services
+        }
+    }
+
+    response = requests.post(url, json=data, headers=headers)
+    return response.json()
+
+def update_order(id, meta):
+    url = f"https://api.duffel.com/air/orders/{id}"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    
+    data = {
+        "data": {
+            "metadata": meta
+        }
+    }
+
+    response = requests.post(url, json=data, headers=headers)
+    return response.json()
