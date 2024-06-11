@@ -2,7 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse
 from .decorator import require_auth
-from .service import get_duffel,add_service_to_order, update_order, get_orders, get_order_by_id, get_available_services_by_order_id, create_order, update_passenger_details, get_offers, get_offer_by_id, create_duffel_offer_request, get_offer_request_by_id, get_airlines, get_airline_by_id, get_aircrafts, get_aircraft_by_id, get_airports, get_airport_by_id, get_cities, get_city_by_id, get_places, get_offer_requests
+from .service import get_duffel,add_service_to_order, update_order,create_payment, get_orders, get_order_by_id, get_available_services_by_order_id, create_order, update_passenger_details, get_offers, get_offer_by_id, create_duffel_offer_request, get_offer_request_by_id, get_airlines, get_airline_by_id, get_aircrafts, get_aircraft_by_id, get_airports, get_airport_by_id, get_cities, get_city_by_id, get_places, get_offer_requests
 import json
 
 @csrf_exempt
@@ -422,6 +422,36 @@ def update_order_view(request, pk):
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
     order_data = update_order(id=pk, meta=meta)
+    if order_data.get('errors'):
+        return JsonResponse({'success': False, 'error': order_data}, status=404)
+
+    return JsonResponse({'success': True, 'result': order_data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def create_payment_view(request, pk):
+    try:
+        data = json.loads(request.body)
+        type = data.get('type')
+        if not type:
+            return JsonResponse({'success': False, 'error': 'Invalid or missing type data'}, status=400)
+        
+        currency = data.get('currency')
+        if not currency:
+            return JsonResponse({'success': False, 'error': 'Invalid or missing currency data'}, status=400)
+        
+        amount = data.get('amount')
+        if not amount:
+            return JsonResponse({'success': False, 'error': 'Invalid or missing amount data'}, status=400)
+        
+    except json.JSONDecodeError as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+    order_data = create_payment(id=pk, type=type, currency=currency, amount=amount)
+    
     if order_data.get('errors'):
         return JsonResponse({'success': False, 'error': order_data}, status=404)
 
