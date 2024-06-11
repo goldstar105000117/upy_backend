@@ -370,3 +370,26 @@ def update_order(id, meta):
 
     response = requests.post(url, json=data, headers=headers)
     return response.json()
+
+def create_payment(id, type, currency, amount):
+    url = f"https://api.duffel.com/air/payments"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    
+    data = {
+        "data": {
+            "payment": {
+                "type": type,
+                "currency": currency,
+                "amount": amount
+            },
+            "order_id": id
+        }
+    }
+
+    response = requests.post(url, json=data, headers=headers)
+    return response.json()
