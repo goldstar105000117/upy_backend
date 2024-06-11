@@ -17,7 +17,10 @@ urlpatterns = [
     path('offers/', views.get_offers_view, name='get_offers'),
     path('offers/<str:pk>/', views.get_offer_view, name='get_offer'),
     path('offers/passenger/update/', views.update_passenger_details_view, name='update_passenger_details'),
-    path('order/create/', views.create_order_view, name='create_order'),
-    path('order/', views.get_orders_view, name='get_orders'),
-    path('order/<str:pk>/', views.get_order_view, name='get_order'),
+    path('orders/create/', views.create_order_view, name='create_order'),
+    path('orders/', views.get_orders_view, name='get_orders'),
+    path('orders/<str:pk>/', views.get_order_view, name='get_order'),
+    path('orders/<str:pk>/available_services/', views.get_available_services_view, name='get_available_services'),
+    path('orders/<str:pk>/add_service/', views.add_service_to_order_view, name='add_service_to_order'),
+    path('orders/<str:pk>/update/', views.update_order_view, name='update_order'),
 ]

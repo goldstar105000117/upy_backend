@@ -2,7 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse
 from .decorator import require_auth
-from .service import get_duffel, get_orders, get_order_by_id, create_order, update_passenger_details, get_offers, get_offer_by_id, create_duffel_offer_request, get_offer_request_by_id, get_airlines, get_airline_by_id, get_aircrafts, get_aircraft_by_id, get_airports, get_airport_by_id, get_cities, get_city_by_id, get_places, get_offer_requests
+from .service import get_duffel,add_service_to_order, update_order, get_orders, get_order_by_id, get_available_services_by_order_id, create_order, update_passenger_details, get_offers, get_offer_by_id, create_duffel_offer_request, get_offer_request_by_id, get_airlines, get_airline_by_id, get_aircrafts, get_aircraft_by_id, get_airports, get_airport_by_id, get_cities, get_city_by_id, get_places, get_offer_requests
 import json
 
 @csrf_exempt
@@ -370,4 +370,59 @@ def get_order_view(request, pk):
     order_data = get_order_by_id(id=pk)
     if order_data.get('errors'):
         return JsonResponse({'success': False, 'error': order_data['errors'][0]['title']}, status=404)
+    return JsonResponse({'success': True, 'result': order_data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def get_available_services_view(request, pk):
+    available_services_data = get_available_services_by_order_id(id=pk)
+    if available_services_data.get('errors'):
+        return JsonResponse({'success': False, 'error': available_services_data['errors'][0]['title']}, status=404)
+    return JsonResponse({'success': True, 'result': available_services_data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def add_service_to_order_view(request, pk):
+    try:
+        data = json.loads(request.body)
+        payment = data.get('payment')
+        if not payment:
+            return JsonResponse({'success': False, 'error': 'Invalid or missing payment data'}, status=400)
+
+        add_services = data.get('add_services')
+        if not add_services:
+            return JsonResponse({'success': False, 'error': 'Invalid or missing services data'}, status=400)
+        
+    except json.JSONDecodeError as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+    service_data = add_service_to_order(id=pk, payment=payment, add_services=add_services)
+    if service_data.get('errors'):
+        return JsonResponse({'success': False, 'error': service_data}, status=404)
+
+    return JsonResponse({'success': True, 'result': service_data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def update_order_view(request, pk):
+    try:
+        data = json.loads(request.body)
+        meta = data.get('meta')
+        if not meta:
+            return JsonResponse({'success': False, 'error': 'Invalid or missing meta data'}, status=400)
+        
+    except json.JSONDecodeError as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+    order_data = update_order(id=pk, meta=meta)
+    if order_data.get('errors'):
+        return JsonResponse({'success': False, 'error': order_data}, status=404)
+
     return JsonResponse({'success': True, 'result': order_data})
