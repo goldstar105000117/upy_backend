@@ -406,3 +406,39 @@ def get_seats_by_order_id(id):
     
     response = requests.get(url, headers=headers, params=params)
     return response.json()
+
+def get_cancelled_orders(after=None, limit=None):
+    url = "https://api.duffel.com/air/order_cancellations"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    params = {}
+    if after is not None:
+        params["after"] = after
+        params["before"] = after
+    if limit is not None:
+        params["limit"] = limit
+    
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()
+
+def create_cancelled_orders(order_id):
+    url = f"https://api.duffel.com/air/order_cancellations"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    
+    data = {
+        "data": {
+            "order_id": order_id
+        }
+    }
+
+    response = requests.post(url, json=data, headers=headers)
+    return response.json()
