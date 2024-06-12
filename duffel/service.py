@@ -442,3 +442,31 @@ def create_cancelled_orders(order_id):
 
     response = requests.post(url, json=data, headers=headers)
     return response.json()
+
+def confirm_order_cancellation(order_resource_id):
+    url = f"https://api.duffel.com/air/order_cancellations/{order_resource_id}/actions/confirm"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    
+    data = {}
+
+    response = requests.post(url, json=data, headers=headers)
+    return response.json()
+
+def get_order_cancellation(order_resource_id):
+    url = f"https://api.duffel.com/air/order_cancellations/{order_resource_id}"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    
+    params = {}
+
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()
