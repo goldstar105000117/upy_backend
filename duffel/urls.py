@@ -24,4 +24,5 @@ urlpatterns = [
     path('orders/<str:pk>/add_service/', views.add_service_to_order_view, name='add_service_to_order'),
     path('orders/<str:pk>/update/', views.update_order_view, name='update_order'),
     path('orders/<str:pk>/payment/', views.create_payment_view, name='create_payment'),
+    path('orders/<str:pk>/seats/', views.get_seats_view, name='get_seats'),
 ]

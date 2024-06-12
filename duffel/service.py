@@ -393,3 +393,16 @@ def create_payment(id, type, currency, amount):
 
     response = requests.post(url, json=data, headers=headers)
     return response.json()
+    
+def get_seats_by_order_id(id):
+    url = f"https://api.duffel.com/air/orders/seat_maps?offer_id={id}"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    params = {}
+    
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()
