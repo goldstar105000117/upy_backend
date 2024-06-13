@@ -470,3 +470,17 @@ def get_order_cancellation(order_resource_id):
 
     response = requests.get(url, headers=headers, params=params)
     return response.json()
+
+def get_order_change_request(id):
+    url = f"https://api.duffel.com/air/order_change_requests/{id}"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    
+    params = {}
+
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()
