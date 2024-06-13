@@ -2,7 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse
 from .decorator import require_auth
-from .service import get_duffel, get_order_cancellation, create_order_change_request, get_order_change_request, confirm_order_cancellation, create_cancelled_orders, get_cancelled_orders, get_seats_by_order_id, add_service_to_order, update_order,create_payment, get_orders, get_order_by_id, get_available_services_by_order_id, create_order, update_passenger_details, get_offers, get_offer_by_id, create_duffel_offer_request, get_offer_request_by_id, get_airlines, get_airline_by_id, get_aircrafts, get_aircraft_by_id, get_airports, get_airport_by_id, get_cities, get_city_by_id, get_places, get_offer_requests
+from .service import get_duffel, get_order_change_offer, get_order_change_offers, get_order_cancellation, create_order_change_request, get_order_change_request, confirm_order_cancellation, create_cancelled_orders, get_cancelled_orders, get_seats_by_order_id, add_service_to_order, update_order,create_payment, get_orders, get_order_by_id, get_available_services_by_order_id, create_order, update_passenger_details, get_offers, get_offer_by_id, create_duffel_offer_request, get_offer_request_by_id, get_airlines, get_airline_by_id, get_aircrafts, get_aircraft_by_id, get_airports, get_airport_by_id, get_cities, get_city_by_id, get_places, get_offer_requests
 import json
 
 @csrf_exempt
@@ -581,3 +581,33 @@ def create_order_change_request_view(request):
         return JsonResponse({'success': False, 'error': 'No data found'}, status=404)
 
     return JsonResponse({'success': True, 'result': create_order_change_data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def get_order_change_offers_view(request):
+    after = None
+    limit = 50
+
+    try:
+        data = json.loads(request.body)
+        after = data.get('after', after)
+        limit = data.get('limit', limit)
+    except json.JSONDecodeError:
+        pass
+
+    order_change_offers_data = get_order_change_offers(after=after, limit=limit)
+
+    if not order_change_offers_data:
+        return JsonResponse({'success': False, 'error': 'No data found'}, status=404)
+
+    return JsonResponse({'success': True, 'result': order_change_offers_data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def get_order_change_offer_view(request, pk):
+    order_change_offer_data = get_order_change_offer(id=pk)
+    if order_change_offer_data.get('errors'):
+        return JsonResponse({'success': False, 'error': order_change_offer_data['errors'][0]['title']}, status=404)
+    return JsonResponse({'success': True, 'result': order_change_offer_data})

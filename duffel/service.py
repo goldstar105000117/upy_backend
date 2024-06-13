@@ -504,3 +504,35 @@ def create_order_change_request(order_id, slices, private_fares):
 
     response = requests.post(url, json=data, headers=headers)
     return response.json()
+
+def get_order_change_offers(after=None, limit=None):
+    url = "https://api.duffel.com/air/order_change_offers"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    params = {}
+    if after is not None:
+        params["after"] = after
+        params["before"] = after
+    if limit is not None:
+        params["limit"] = limit
+    
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()
+
+def get_order_change_offer(id):
+    url = f"https://api.duffel.com/air/order_change_offers/{id}"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    
+    params = {}
+
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()

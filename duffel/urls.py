@@ -31,4 +31,6 @@ urlpatterns = [
     path('orders/cancelled/get/', views.get_order_cancellation_view, name='get_order_cancellation'),
     path('orders/change/create/', views.create_order_change_request_view, name='create_order_change_request'),
     path('orders/change/<str:pk>/', views.get_order_change_request_view, name='get_order_change_request'),
+    path('orders/offer/', views.get_order_change_offers_view, name='get_order_change_offers'),
+    path('orders/offer/<str:pk>/', views.get_order_change_offer_view, name='get_order_change_offer'),
 ]
