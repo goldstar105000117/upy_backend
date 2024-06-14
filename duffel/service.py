@@ -536,3 +536,21 @@ def get_order_change_offer(id):
 
     response = requests.get(url, headers=headers, params=params)
     return response.json()
+
+def create_pending_order_change(selected_order_change_offer):
+    url = f"https://api.duffel.com/air/order_changes"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    
+    data = {
+        "data": {
+            "selected_order_change_offer": selected_order_change_offer
+        }
+    }
+
+    response = requests.post(url, json=data, headers=headers)
+    return response.json()
