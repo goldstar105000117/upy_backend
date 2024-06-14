@@ -504,3 +504,117 @@ def create_order_change_request(order_id, slices, private_fares):
 
     response = requests.post(url, json=data, headers=headers)
     return response.json()
+
+def get_order_change_offers(after=None, limit=None):
+    url = "https://api.duffel.com/air/order_change_offers"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    params = {}
+    if after is not None:
+        params["after"] = after
+        params["before"] = after
+    if limit is not None:
+        params["limit"] = limit
+    
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()
+
+def get_order_change_offer(id):
+    url = f"https://api.duffel.com/air/order_change_offers/{id}"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    
+    params = {}
+
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()
+
+def create_pending_order_change(selected_order_change_offer):
+    url = f"https://api.duffel.com/air/order_changes"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    
+    data = {
+        "data": {
+            "selected_order_change_offer": selected_order_change_offer
+        }
+    }
+
+    response = requests.post(url, json=data, headers=headers)
+    return response.json()
+
+def get_order_change(id):
+    url = f"https://api.duffel.com/air/order_changes/{id}"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    
+    params = {}
+
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()
+
+
+def confirm_order_change(payment, id):
+    url = f"https://api.duffel.com/air/order_changes/{id}/actions/confirm"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    
+    data = {
+        "data": {
+            "payment": payment
+        }
+    }
+
+    response = requests.post(url, json=data, headers=headers)
+    return response.json()
+
+def create_batch_offer_request(supplier_timeout, slices, passengers, max_connections, cabin_class):
+    url = f"https://api.duffel.com/air/batch_offer_requests?supplier_timeout={supplier_timeout}"
+    
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"  # Use your Duffel access token
+    }
+    
+    data = {
+        "data": {
+            "slices": slices,
+            "passengers": passengers,
+            "max_connections": max_connections,
+            "cabin_class": cabin_class
+        }
+    }
+    
+    try:
+        response = requests.post(url, json=data, headers=headers)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        logging.error(e)
+        return JsonResponse({'success': False, 'error': str(e), 'details': response.text}, status=response.status_code)
+    except requests.exceptions.RequestException as e:
+        logging.error(e)
+        return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': True, 'result': response.json()['data']})
