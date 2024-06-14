@@ -2,7 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse
 from .decorator import require_auth
-from .service import create_pending_order_change, get_order_change_offer, get_order_change_offers, get_order_cancellation, create_order_change_request, get_order_change_request, confirm_order_cancellation, create_cancelled_orders, get_cancelled_orders, get_seats_by_order_id, add_service_to_order, update_order,create_payment, get_orders, get_order_by_id, get_available_services_by_order_id, create_order, update_passenger_details, get_offers, get_offer_by_id, create_duffel_offer_request, get_offer_request_by_id, get_airlines, get_airline_by_id, get_aircrafts, get_aircraft_by_id, get_airports, get_airport_by_id, get_cities, get_city_by_id, get_places, get_offer_requests
+from .service import create_pending_order_change, create_batch_offer_request, confirm_order_change, get_order_change, get_order_change_offer, get_order_change_offers, get_order_cancellation, create_order_change_request, get_order_change_request, confirm_order_cancellation, create_cancelled_orders, get_cancelled_orders, get_seats_by_order_id, add_service_to_order, update_order,create_payment, get_orders, get_order_by_id, get_available_services_by_order_id, create_order, update_passenger_details, get_offers, get_offer_by_id, create_duffel_offer_request, get_offer_request_by_id, get_airlines, get_airline_by_id, get_aircrafts, get_aircraft_by_id, get_airports, get_airport_by_id, get_cities, get_city_by_id, get_places, get_offer_requests
 import json
 
 @csrf_exempt
@@ -631,3 +631,56 @@ def create_pending_order_change_view(request):
         return JsonResponse({'success': False, 'error': 'No data found'}, status=404)
 
     return JsonResponse({'success': True, 'result': create_pending_order_change_data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def get_order_change_view(request, pk):
+    order_change_data = get_order_change(id=pk)
+    if order_change_data.get('errors'):
+        return JsonResponse({'success': False, 'error': order_change_data['errors'][0]['title']}, status=404)
+    return JsonResponse({'success': True, 'result': order_change_data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def confirm_order_change_view(request):
+    id = None
+    payment = None
+    try:
+        data = json.loads(request.body)
+        id = data.get('id', id)
+        if not id:
+            return JsonResponse({'success': False, 'error': 'Invalid or missing id data'}, status=400)
+        
+        payment = data.get('payment', payment)
+        if not payment:
+            return JsonResponse({'success': False, 'error': 'Invalid or missing payment data'}, status=400)
+    except json.JSONDecodeError:
+        pass
+
+    confirm_order_change_data = confirm_order_change(payment=payment, id=id)
+
+    if not confirm_order_change_data:
+        return JsonResponse({'success': False, 'error': 'No data found'}, status=404)
+
+    return JsonResponse({'success': True, 'result': confirm_order_change_data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def create_batch_offer_request_view(request):
+    try:
+        data = json.loads(request.body)
+
+        slices = data.get('slices')
+        passengers = data.get('passengers')
+        max_connections = data.get('max_connections')
+        cabin_class = data.get('cabin_class')
+        
+        response = create_batch_offer_request(10000, slices=slices, passengers=passengers, max_connections=max_connections, cabin_class=cabin_class)
+        return response
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
+    except KeyError as e:
+        return JsonResponse({'success': False, 'error': f'Missing key {e}'}, status=400)
