@@ -37,4 +37,5 @@ urlpatterns = [
     path('orders/offer/', views.get_order_change_offers_view, name='get_order_change_offers'),
     path('orders/offer/<str:pk>/', views.get_order_change_offer_view, name='get_order_change_offer'),
     path('batch_offer_request/create/', views.create_batch_offer_request_view, name='create_batch_offer_request'),
+    path('batch_offer_request/<str:pk>/', views.get_batch_offer_request_view, name='get_batch_offer_request'),
 ]
