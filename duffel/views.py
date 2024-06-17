@@ -2,7 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse
 from .decorator import require_auth
-from .service import create_pending_order_change, create_batch_offer_request, confirm_order_change, get_order_change, get_order_change_offer, get_order_change_offers, get_order_cancellation, create_order_change_request, get_order_change_request, confirm_order_cancellation, create_cancelled_orders, get_cancelled_orders, get_seats_by_order_id, add_service_to_order, update_order,create_payment, get_orders, get_order_by_id, get_available_services_by_order_id, create_order, update_passenger_details, get_offers, get_offer_by_id, create_duffel_offer_request, get_offer_request_by_id, get_airlines, get_airline_by_id, get_aircrafts, get_aircraft_by_id, get_airports, get_airport_by_id, get_cities, get_city_by_id, get_places, get_offer_requests
+from .service import accept_airline_change, update_airline_change, get_airline_changes, create_pending_order_change, get_batch_offer_request, create_batch_offer_request, confirm_order_change, get_order_change, get_order_change_offer, get_order_change_offers, get_order_cancellation, create_order_change_request, get_order_change_request, confirm_order_cancellation, create_cancelled_orders, get_cancelled_orders, get_seats_by_order_id, add_service_to_order, update_order,create_payment, get_orders, get_order_by_id, get_available_services_by_order_id, create_order, update_passenger_details, get_offers, get_offer_by_id, create_duffel_offer_request, get_offer_request_by_id, get_airlines, get_airline_by_id, get_aircrafts, get_aircraft_by_id, get_airports, get_airport_by_id, get_cities, get_city_by_id, get_places, get_offer_requests
 import json
 
 @csrf_exempt
@@ -684,3 +684,62 @@ def create_batch_offer_request_view(request):
         return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
     except KeyError as e:
         return JsonResponse({'success': False, 'error': f'Missing key {e}'}, status=400)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def get_batch_offer_request_view(request, pk):
+    order_change_data = get_batch_offer_request(id=pk)
+    if order_change_data.get('errors'):
+        return JsonResponse({'success': False, 'error': order_change_data['errors'][0]['title']}, status=404)
+    return JsonResponse({'success': True, 'result': order_change_data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def get_airline_changes_view(request):
+    order_id = None
+    try:
+        data = json.loads(request.body)
+        order_id = data.get('order_id', order_id)
+        if not order_id:
+            return JsonResponse({'success': False, 'error': 'Invalid or missing order id data'}, status=400)
+    except json.JSONDecodeError:
+        pass
+
+    airline_changes_data = get_airline_changes(order_id=order_id)
+
+    if not airline_changes_data:
+        return JsonResponse({'success': False, 'error': 'No data found'}, status=404)
+
+    return JsonResponse({'success': True, 'result': airline_changes_data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def update_airline_change_view(request, pk):
+    try:
+        data = json.loads(request.body)
+        action_taken = data.get('action_taken', None)
+        if not action_taken:
+            return JsonResponse({'success': False, 'error': 'Invalid or missing action taken data'}, status=400)
+    except json.JSONDecodeError:
+        pass
+    
+    airline_changes_data = update_airline_change(id=pk, action_taken=action_taken)
+    
+    if airline_changes_data.get('errors'):
+        return JsonResponse({'success': False, 'error': airline_changes_data['errors'][0]['title']}, status=404)
+
+    return JsonResponse({'success': True, 'result': airline_changes_data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def accept_airline_change_view(request, pk):
+    accept_airline_changes_data = accept_airline_change(id=pk)
+    
+    if accept_airline_changes_data.get('errors'):
+        return JsonResponse({'success': False, 'error': accept_airline_changes_data['errors'][0]['title']}, status=404)
+
+    return JsonResponse({'success': True, 'result': accept_airline_changes_data})

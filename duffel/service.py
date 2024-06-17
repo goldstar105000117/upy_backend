@@ -569,7 +569,6 @@ def get_order_change(id):
     response = requests.get(url, headers=headers, params=params)
     return response.json()
 
-
 def confirm_order_change(payment, id):
     url = f"https://api.duffel.com/air/order_changes/{id}/actions/confirm"
     headers = {
@@ -618,3 +617,64 @@ def create_batch_offer_request(supplier_timeout, slices, passengers, max_connect
         logging.error(e)
         return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': True, 'result': response.json()['data']})
+
+def get_batch_offer_request(id):
+    url = f"https://api.duffel.com/air/batch_offer_requests/{id}"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    
+    params = {}
+
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()
+
+def get_airline_changes(order_id):
+    url = f"https://api.duffel.com/air/airline_initiated_changes"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    
+    params = {}
+    if order_id is not None:
+        params["order_id"] = order_id
+    
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()
+
+def update_airline_change(id, action_taken):
+    url = f"https://api.duffel.com/air/airline_initiated_changes/{id}"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    data = {
+        "data": {
+            "action_taken": action_taken
+        }
+    }
+
+    response = requests.patch(url, json=data, headers=headers)
+    return response.json()
+
+def accept_airline_change(id):
+    url = f"https://api.duffel.com/air/airline_initiated_changes/{id}/actions/accept"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    
+    data = {}
+
+    response = requests.post(url, json=data, headers=headers)
+    return response.json()
