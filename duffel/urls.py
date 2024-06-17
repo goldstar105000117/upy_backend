@@ -38,4 +38,7 @@ urlpatterns = [
     path('orders/offer/<str:pk>/', views.get_order_change_offer_view, name='get_order_change_offer'),
     path('batch_offer_request/create/', views.create_batch_offer_request_view, name='create_batch_offer_request'),
     path('batch_offer_request/<str:pk>/', views.get_batch_offer_request_view, name='get_batch_offer_request'),
+    path('airline_changes/', views.get_airline_changes_view, name='get_airline_changes'),
+    path('airline_changes/<str:pk>/', views.update_airline_change_view, name='update_airline_change'),
+    path('airline_changes/<str:pk>/accept/', views.accept_airline_change_view, name='accept_airline_change'),
 ]
