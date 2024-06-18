@@ -9,7 +9,7 @@ def get_duffel():
     return Duffel(access_token=settings.DUFFEL_ACCESS_TOKEN)
 
 def get_airlines(after=None, limit=None):
-    url = "https://api.duffel.com/air/airlines"
+    url = "https://app.duffel.com/api/hq/airlines"
     headers = {
         "Accept-Encoding": "gzip",
         "Accept": "application/json",
@@ -678,3 +678,30 @@ def accept_airline_change(id):
 
     response = requests.post(url, json=data, headers=headers)
     return response.json()
+
+def search_accommodation(rooms, radius, longitude, latitude, check_out_date, check_in_date):
+    url = f"https://api.duffel.com/stays/search"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    data = {
+        "data": {
+            "rooms": rooms,
+            "location": {
+                "radius": radius,
+                "geographic_coordinates": {
+                    "longitude": longitude,
+                    "latitude": latitude
+                }
+            },
+            "check_out_date": check_out_date,
+            "check_in_date": check_in_date
+        }
+    }
+    response = requests.post(url, json=data, headers=headers)
+    print(response)
+
+    return data

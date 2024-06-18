@@ -1,13 +1,14 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse
-from .decorator import require_auth
-from .service import accept_airline_change, update_airline_change, get_airline_changes, create_pending_order_change, get_batch_offer_request, create_batch_offer_request, confirm_order_change, get_order_change, get_order_change_offer, get_order_change_offers, get_order_cancellation, create_order_change_request, get_order_change_request, confirm_order_cancellation, create_cancelled_orders, get_cancelled_orders, get_seats_by_order_id, add_service_to_order, update_order,create_payment, get_orders, get_order_by_id, get_available_services_by_order_id, create_order, update_passenger_details, get_offers, get_offer_by_id, create_duffel_offer_request, get_offer_request_by_id, get_airlines, get_airline_by_id, get_aircrafts, get_aircraft_by_id, get_airports, get_airport_by_id, get_cities, get_city_by_id, get_places, get_offer_requests
+from authentication.decorator import require_auth
+from .service import search_accommodation, accept_airline_change, update_airline_change, get_airline_changes, create_pending_order_change, get_batch_offer_request, create_batch_offer_request, confirm_order_change, get_order_change, get_order_change_offer, get_order_change_offers, get_order_cancellation, create_order_change_request, get_order_change_request, confirm_order_cancellation, create_cancelled_orders, get_cancelled_orders, get_seats_by_order_id, add_service_to_order, update_order,create_payment, get_orders, get_order_by_id, get_available_services_by_order_id, create_order, update_passenger_details, get_offers, get_offer_by_id, create_duffel_offer_request, get_offer_request_by_id, get_airlines, get_airline_by_id, get_aircrafts, get_aircraft_by_id, get_airports, get_airport_by_id, get_cities, get_city_by_id, get_places, get_offer_requests
 import json
+from .convex import save_user_activity
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_airlines_view(request):
     after = None
     limit = 50
@@ -18,6 +19,10 @@ def get_airlines_view(request):
         limit = data.get('limit', limit)
     except json.JSONDecodeError:
         pass
+    
+    result = save_user_activity(request.user['_id'], 'list airlines')
+    if not result:
+        return JsonResponse({'success': False, 'error': 'Failed to save user activity'}, status=500)
 
     airlines_data = get_airlines(after=after, limit=limit)
 
@@ -743,3 +748,37 @@ def accept_airline_change_view(request, pk):
         return JsonResponse({'success': False, 'error': accept_airline_changes_data['errors'][0]['title']}, status=404)
 
     return JsonResponse({'success': True, 'result': accept_airline_changes_data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def search_accommodation_view(request):
+    try:
+        data = json.loads(request.body)
+        rooms = data.get('rooms', None)
+        if not rooms:
+            return JsonResponse({'success': False, 'error': 'Invalid or missing rooms data'}, status=400)
+        radius = data.get('radius', None)
+        if not radius:
+            return JsonResponse({'success': False, 'error': 'Invalid or missing radius of location'}, status=400)
+        longitude = data.get('longitude', None)
+        if not longitude:
+            return JsonResponse({'success': False, 'error': 'Invalid or missing longitude data'}, status=400)
+        latitude = data.get('latitude', None)
+        if not latitude:
+            return JsonResponse({'success': False, 'error': 'Invalid or missing latitude data'}, status=400)
+        check_out_date = data.get('check_out_date', None)
+        if not check_out_date:
+            return JsonResponse({'success': False, 'error': 'Invalid or missing check_out_date data'}, status=400)
+        check_in_date = data.get('check_in_date', None)
+        if not check_in_date:
+            return JsonResponse({'success': False, 'error': 'Invalid or missing check_in_date data'}, status=400)
+    except json.JSONDecodeError:
+        pass
+    
+    accommodation_data = search_accommodation(rooms=rooms, radius=radius, longitude=longitude, latitude=latitude, check_out_date=check_out_date, check_in_date=check_in_date)
+    
+    if accommodation_data.get('errors'):
+        return JsonResponse({'success': False, 'error': accommodation_data['errors'][0]['title']}, status=404)
+
+    return JsonResponse({'success': True, 'result': accommodation_data})
