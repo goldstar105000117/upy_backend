@@ -705,3 +705,24 @@ def search_accommodation(rooms, radius, longitude, latitude, check_out_date, che
     print(response)
 
     return data
+
+def create_customer(email, phone_number, given_name, family_name):
+    url = f"https://api.duffel.com/identity/customer/users"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    
+    data = {
+        "data": {
+            "email": email,
+            "phone_number": phone_number,
+            "given_name": given_name,
+            "family_name": family_name
+        }
+    }
+
+    response = requests.post(url, json=data, headers=headers)
+    return response.json()
