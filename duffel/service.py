@@ -9,7 +9,7 @@ def get_duffel():
     return Duffel(access_token=settings.DUFFEL_ACCESS_TOKEN)
 
 def get_airlines(after=None, limit=None):
-    url = "https://app.duffel.com/api/hq/airlines"
+    url = "https://api.duffel.com/air/airlines"
     headers = {
         "Accept-Encoding": "gzip",
         "Accept": "application/json",

@@ -4,7 +4,6 @@ from django.http import JsonResponse
 from authentication.decorator import require_auth
 from .service import search_accommodation, accept_airline_change, update_airline_change, get_airline_changes, create_pending_order_change, get_batch_offer_request, create_batch_offer_request, confirm_order_change, get_order_change, get_order_change_offer, get_order_change_offers, get_order_cancellation, create_order_change_request, get_order_change_request, confirm_order_cancellation, create_cancelled_orders, get_cancelled_orders, get_seats_by_order_id, add_service_to_order, update_order,create_payment, get_orders, get_order_by_id, get_available_services_by_order_id, create_order, update_passenger_details, get_offers, get_offer_by_id, create_duffel_offer_request, get_offer_request_by_id, get_airlines, get_airline_by_id, get_aircrafts, get_aircraft_by_id, get_airports, get_airport_by_id, get_cities, get_city_by_id, get_places, get_offer_requests
 import json
-from .convex import save_user_activity
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -19,10 +18,6 @@ def get_airlines_view(request):
         limit = data.get('limit', limit)
     except json.JSONDecodeError:
         pass
-    
-    result = save_user_activity(request.user['_id'], 'list airlines')
-    if not result:
-        return JsonResponse({'success': False, 'error': 'Failed to save user activity'}, status=500)
 
     airlines_data = get_airlines(after=after, limit=limit)
 
@@ -48,7 +43,7 @@ def get_airlines_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_airline_view(request, pk):
     airlines_data = get_airline_by_id(id=pk)
 
@@ -59,7 +54,7 @@ def get_airline_view(request, pk):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_aircrafts_view(request):
     after = None
     limit = 50
@@ -80,7 +75,7 @@ def get_aircrafts_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_aircraft_view(request, pk):
     aircrafts_data = get_aircraft_by_id(id=pk)
 
@@ -91,7 +86,7 @@ def get_aircraft_view(request, pk):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_airports_view(request):
     after = None
     limit = 50
@@ -112,7 +107,7 @@ def get_airports_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_airport_view(request, pk):
     airports_data = get_airport_by_id(id=pk)
 
@@ -123,7 +118,7 @@ def get_airport_view(request, pk):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_cities_view(request):
     after = None
     limit = 50
@@ -153,7 +148,7 @@ def get_cities_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_city_view(request, pk):
     response = get_city_by_id(id=pk)
 
@@ -172,7 +167,7 @@ def get_city_view(request, pk):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_places_view(request):
     name=None
     rad=None
@@ -196,7 +191,7 @@ def get_places_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_offer_requests_view(request):
     after = None
     limit = 50
@@ -217,7 +212,7 @@ def get_offer_requests_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def create_offer_request_view(request):
     try:
         data = json.loads(request.body)
@@ -236,7 +231,7 @@ def create_offer_request_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_offer_request_view(request, pk):
     offer_request_data = get_offer_request_by_id(id=pk)
     if offer_request_data.get('errors'):
@@ -245,7 +240,7 @@ def get_offer_request_view(request, pk):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_offers_view(request):
     after = None
     limit = 50
@@ -274,7 +269,7 @@ def get_offers_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_offer_view(request, pk):
     offer_data = get_offer_by_id(id=pk)
     if offer_data.get('errors'):
@@ -283,7 +278,7 @@ def get_offer_view(request, pk):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def update_passenger_details_view(request):
     try:
         data = json.loads(request.body)
@@ -309,7 +304,7 @@ def update_passenger_details_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def create_order_view(request):
     try:
         data = json.loads(request.body)
@@ -349,7 +344,7 @@ def create_order_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_orders_view(request):
     after = None
     limit = 50
@@ -370,7 +365,7 @@ def get_orders_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_order_view(request, pk):
     order_data = get_order_by_id(id=pk)
     if order_data.get('errors'):
@@ -379,7 +374,7 @@ def get_order_view(request, pk):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_available_services_view(request, pk):
     available_services_data = get_available_services_by_order_id(id=pk)
     if available_services_data.get('errors'):
@@ -388,7 +383,7 @@ def get_available_services_view(request, pk):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def add_service_to_order_view(request, pk):
     try:
         data = json.loads(request.body)
@@ -413,7 +408,7 @@ def add_service_to_order_view(request, pk):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def update_order_view(request, pk):
     try:
         data = json.loads(request.body)
@@ -434,7 +429,7 @@ def update_order_view(request, pk):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def create_payment_view(request, pk):
     try:
         data = json.loads(request.body)
@@ -464,7 +459,7 @@ def create_payment_view(request, pk):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_seats_view(request, pk):
     seats_data = get_seats_by_order_id(id=pk)
     if seats_data.get('errors'):
@@ -473,7 +468,7 @@ def get_seats_view(request, pk):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_cancelled_orders_view(request):
     after = None
     limit = 50
@@ -494,7 +489,7 @@ def get_cancelled_orders_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def create_cancelled_orders_view(request):
     order_id = None
     try:
@@ -514,7 +509,7 @@ def create_cancelled_orders_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def confirm_order_cancellation_view(request):
     order_resource_id = None
     try:
@@ -534,7 +529,7 @@ def confirm_order_cancellation_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_order_cancellation_view(request):
     order_resource_id = None
     try:
@@ -554,7 +549,7 @@ def get_order_cancellation_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_order_change_request_view(request, pk):
     order_change_request_data = get_order_change_request(id=pk)
     if order_change_request_data.get('errors'):
@@ -563,7 +558,7 @@ def get_order_change_request_view(request, pk):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def create_order_change_request_view(request):
     order_id = None
     try:
@@ -589,7 +584,7 @@ def create_order_change_request_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_order_change_offers_view(request):
     after = None
     limit = 50
@@ -610,7 +605,7 @@ def get_order_change_offers_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_order_change_offer_view(request, pk):
     order_change_offer_data = get_order_change_offer(id=pk)
     if order_change_offer_data.get('errors'):
@@ -619,7 +614,7 @@ def get_order_change_offer_view(request, pk):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def create_pending_order_change_view(request):
     selected_order_change_offer = None
     try:
@@ -639,7 +634,7 @@ def create_pending_order_change_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_order_change_view(request, pk):
     order_change_data = get_order_change(id=pk)
     if order_change_data.get('errors'):
@@ -648,7 +643,7 @@ def get_order_change_view(request, pk):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def confirm_order_change_view(request):
     id = None
     payment = None
@@ -673,7 +668,7 @@ def confirm_order_change_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def create_batch_offer_request_view(request):
     try:
         data = json.loads(request.body)
@@ -692,7 +687,7 @@ def create_batch_offer_request_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_batch_offer_request_view(request, pk):
     order_change_data = get_batch_offer_request(id=pk)
     if order_change_data.get('errors'):
@@ -701,7 +696,7 @@ def get_batch_offer_request_view(request, pk):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_airline_changes_view(request):
     order_id = None
     try:
@@ -721,7 +716,7 @@ def get_airline_changes_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def update_airline_change_view(request, pk):
     try:
         data = json.loads(request.body)
@@ -740,7 +735,7 @@ def update_airline_change_view(request, pk):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def accept_airline_change_view(request, pk):
     accept_airline_changes_data = accept_airline_change(id=pk)
     
@@ -751,7 +746,7 @@ def accept_airline_change_view(request, pk):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def search_accommodation_view(request):
     try:
         data = json.loads(request.body)

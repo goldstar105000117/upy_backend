@@ -50,6 +50,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "updatedai.middleware.SecurityHeadersMiddleware",
     "updatedai.middleware.JWTAuthenticationMiddleware",
+    "updatedai.middleware.SaveUserActivityMiddleware",
 ]
 
 # AUTH_USER_MODEL =  

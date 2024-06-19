@@ -6,6 +6,9 @@ from datetime import datetime
 from authentication.convex import get_user_by_id, get_token_by_access_token
 import logging
 import jwt
+from django.http import JsonResponse
+from duffel.convex import save_user_activity
+from .constants import URL_DESCRIPTIONS
 
 logger = logging.getLogger(__name__)
 
@@ -72,3 +75,16 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
                 print(f"Unauthenticated user: {e}")
         else:
             print(f"Token validation failed: {decoded_payload}")
+    
+class SaveUserActivityMiddleware(MiddlewareMixin):
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        if hasattr(request, 'resolver_match'):
+            if request.user:
+                if 'duffel' in request.resolver_match.route:
+                    user_id = request.user['_id']
+                    description = URL_DESCRIPTIONS.get(request.resolver_match.route)
+                    if description:
+                        result = save_user_activity(user_id, description)
+                        if not result:
+                            return JsonResponse({'success': False, 'error': 'Failed to save user activity'}, status=500)
+        return None
