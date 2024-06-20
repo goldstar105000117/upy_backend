@@ -726,3 +726,38 @@ def create_customer(email, phone_number, given_name, family_name):
 
     response = requests.post(url, json=data, headers=headers)
     return response.json()
+
+def update_customer(id, email, phone_number, given_name, family_name):
+    url = f"https://api.duffel.com/identity/customer/users/{id}"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    
+    data = {
+        "data": {
+            "email": email,
+            "phone_number": phone_number,
+            "given_name": given_name,
+            "family_name": family_name
+        }
+    }
+
+    response = requests.put(url, json=data, headers=headers)
+    return response.json()
+
+def get_customer(id):
+    url = f"https://api.duffel.com/identity/customer/users/{id}"
+    headers = {
+        "Accept-Encoding": "gzip",
+        "Accept": "application/json",
+        "Duffel-Version": "v1",
+        "Authorization": f"Bearer {settings.DUFFEL_ACCESS_TOKEN}"
+    }
+    
+    params = {}
+    
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()
