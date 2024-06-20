@@ -26,3 +26,12 @@ def create_new_customer(user_id, customer_id):
     if result['success']:
         return result['result']
     return None
+
+def get_customer_id(user_id):
+    result = client.mutation('customer:getCustomer', {
+        'user_id': user_id
+    })
+
+    if result:
+        return result
+    return None
