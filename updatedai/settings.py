@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'django.contrib.auth',            # Add this line back
     'duffel',
+    'memberships',
     'django.contrib.contenttypes',    # Add this line back
     'django.contrib.messages',
     'rest_framework',
