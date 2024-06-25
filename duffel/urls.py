@@ -42,6 +42,7 @@ urlpatterns = [
     path('airline_changes/<str:pk>/', views.update_airline_change_view, name='update_airline_change'),
     path('airline_changes/<str:pk>/accept/', views.accept_airline_change_view, name='accept_airline_change'),
     path('stays/search/', views.search_accommodation_view, name='search_accommodation'),
+    path('customer/', views.get_customer_view, name='get_customer'),
     path('customer/create/', views.create_customer_view, name='create_customer'),
     path('customer/update/', views.update_customer_view, name='update_customer'),
 ]

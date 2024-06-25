@@ -5,7 +5,7 @@ from authentication.decorator import require_auth
 from .service import get_customer, update_customer, create_customer, search_accommodation, accept_airline_change, update_airline_change, get_airline_changes, create_pending_order_change, get_batch_offer_request, create_batch_offer_request, confirm_order_change, get_order_change, get_order_change_offer, get_order_change_offers, get_order_cancellation, create_order_change_request, get_order_change_request, confirm_order_cancellation, create_cancelled_orders, get_cancelled_orders, get_seats_by_order_id, add_service_to_order, update_order,create_payment, get_orders, get_order_by_id, get_available_services_by_order_id, create_order, update_passenger_details, get_offers, get_offer_by_id, create_duffel_offer_request, get_offer_request_by_id, get_airlines, get_airline_by_id, get_aircrafts, get_aircraft_by_id, get_airports, get_airport_by_id, get_cities, get_city_by_id, get_places, get_offer_requests
 import json
 import re
-from .convex import create_new_customer, get_customer_id
+from .convex import create_new_customer, get_customer_id, save_user_transaction
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -873,7 +873,7 @@ def update_customer_view(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 @require_auth
-def accept_airline_change_view(request, pk):
+def get_customer_view(request):
     result = get_customer_id(request.user['_id'])
     if not result:
         return JsonResponse({'success': False, 'error': 'Failed to get customer user data'}, status=500)  

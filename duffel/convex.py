@@ -35,3 +35,14 @@ def get_customer_id(user_id):
     if result:
         return result
     return None
+
+def save_user_transaction(user_id, amount, status):
+    result = client.mutation('transaction:saveUserTransactionHistory', {
+        'user_id': user_id,
+        'status': status,
+        'amount': amount
+    })
+
+    if result['success']:
+        return result['result']
+    return None
