@@ -51,6 +51,7 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
     def process_request(self, request):
         print("Inside JWTAuthenticationMiddleware")
         token = request.headers.get('Authorization')
+        print('Authorization', token)
 
         request.user = None
 
@@ -84,7 +85,7 @@ class SaveUserActivityMiddleware(MiddlewareMixin):
                     user_id = request.user['_id']
                     description = URL_DESCRIPTIONS.get(request.resolver_match.route)
                     if description:
-                        result = save_user_activity(user_id, description)
+                        result = save_user_activity(user_id, description, is_deleted=False)
                         if not result:
                             return JsonResponse({'success': False, 'error': 'Failed to save user activity'}, status=500)
         return None
