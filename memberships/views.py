@@ -5,7 +5,7 @@ from authentication.decorator import require_auth
 # from .service import 
 import json
 import re
-from .convex import get_plans, create_plan, update_plan
+from .convex import get_plans, create_plan, update_plan, activate_plan, deactivate_plan
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -60,7 +60,6 @@ def create_plan_view(request):
 
     return JsonResponse({'success': True, 'result': {'type': type, 'price': price, 'billing_period': billing_period, 'discount': discount, 'storage': storage, 'token': token, 'is_active': True, 'id': plan_data['result']}})
 
-
 @csrf_exempt
 @require_http_methods(["POST"])
 # @require_auth
@@ -100,4 +99,26 @@ def update_plan_view(request, pk):
     if plan_data['success']:
         return JsonResponse({'success': True, 'result': {'type': type, 'price': price, 'billing_period': billing_period, 'discount': discount, 'storage': storage, 'token': token, 'is_active': True, 'id': plan_data['result']}})
     
-    return JsonResponse({'success': False, 'error': 'Failed to update plan.'}, status=500)    
+    return JsonResponse({'success': False, 'error': 'Failed to update plan.'}, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def activate_plan_view(request, pk):
+    plan_data = activate_plan(id=pk)
+    
+    if plan_data['success']:
+        return JsonResponse({'success': True, 'result': plan_data})
+    
+    return JsonResponse({'success': False, 'error': 'Failed to activate plan.'}, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+# @require_auth
+def deactivate_plan_view(request, pk):
+    plan_data = deactivate_plan(id=pk)
+    
+    if plan_data['success']:
+        return JsonResponse({'success': True, 'result': plan_data})
+    
+    return JsonResponse({'success': False, 'error': 'Failed to deactivate plan.'}, status=500)

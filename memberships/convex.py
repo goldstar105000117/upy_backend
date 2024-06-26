@@ -18,7 +18,7 @@ def create_plan(type , price , billing_period , discount , storage , token ):
         'storage': storage,
         'token': token
     })
-    
+
 def update_plan(id, type , price , billing_period , discount , storage , token ):
     return client.mutation('membership:updatePlan', {
         'id': id,
@@ -28,4 +28,14 @@ def update_plan(id, type , price , billing_period , discount , storage , token )
         'discount': discount,
         'storage': storage,
         'token': token
+    })
+    
+def activate_plan(id):
+    return client.mutation('membership:activatePlan', {
+        'id': id
+    })
+    
+def deactivate_plan(id):
+    return client.mutation('membership:deactivatePlan', {
+        'id': id
     })
