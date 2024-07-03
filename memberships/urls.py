@@ -10,4 +10,5 @@ urlpatterns = [
     path('payment_intent/create/', views.create_stripe_payment_intent_view, name='create_stripe_payment_intent'),
     path('payment_intent/confirm/', views.confirm_stripe_payment_intent_view, name='confirm_stripe_payment_intent'),
     path('<str:pk>/cancel/', views.cancel_subscription_view, name='cancel_subscription'),
+    path('<str:pk>/update/', views.upgrade_subscription_view, name='upgrade_subscription'),
 ]

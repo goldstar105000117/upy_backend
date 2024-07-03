@@ -106,3 +106,9 @@ def set_expires_at(id, expires_at):
         'id': id,
         'expires_at': expires_at
     })
+    
+def update_user_plan_plan_id(id, plan_id):
+    return client.mutation('membership:updateUserPlanPlanId', {
+        'id': id,
+        'plan_id': plan_id
+    })
