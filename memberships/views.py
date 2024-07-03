@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from authentication.decorator import require_auth
 # from .service import 
 import json
-from .convex import get_plans, create_plan, set_expires_at, update_plan, get_customer, activate_plan, activate_user_plan,delete_user_plan, deactivate_plan, get_plan_by_id, get_user_plans, get_user_plan, get_user_plan_by_plan_id, get_stripe_customer_from_user_id, create_customer, create_user_plan
+from .convex import get_plans, create_plan, update_user_plan_plan_id, set_expires_at, update_plan, get_customer, activate_plan, activate_user_plan,delete_user_plan, deactivate_plan, get_plan_by_id, get_user_plans, get_user_plan, get_user_plan_by_plan_id, get_stripe_customer_from_user_id, create_customer, create_user_plan
 from memberships import stripe_api
 from datetime import datetime, timezone
 from dateutil.relativedelta import relativedelta
@@ -242,7 +242,6 @@ def confirm_stripe_payment_intent_view(request):
 @require_http_methods(["POST"])
 @require_auth
 def cancel_subscription_view(request, pk):
-    print(pk)
     user_plan = get_user_plan(id=pk)[0]
     
     if user_plan['is_active']:
@@ -250,6 +249,37 @@ def cancel_subscription_view(request, pk):
         expires_at = datetime.fromtimestamp(subscription.cancel_at).strftime('%m/%d/%Y, %I:%M:%S %p')
         result = set_expires_at(id=pk, expires_at=expires_at)
         return JsonResponse({'success': True, 'result': result})
+        
+    return JsonResponse({'success': True})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+@require_auth
+def upgrade_subscription_view(request, pk):
+    try:
+        data = json.loads(request.body)
+        plan_id = data.get('plan_id')
+        
+        if not plan_id:
+            return JsonResponse({'success': False, 'error': 'Invalid or missing plan id data'}, status=400)
+
+    except json.JSONDecodeError as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    
+    plan = get_plan_by_id(id=plan_id)
+    if not plan:
+        return JsonResponse({'success': False, 'error': 'Invalid plan'}, status=400)
+    
+    user_plan = get_user_plan(id=pk)[0]
+    
+    if user_plan['plan_id'] != plan[0]['_id']:
+        stripe_api.modify_subscription(user_plan['provider_id'], plan[0]['product_id'])
+        update_user_plan_plan_id(id=pk, plan_id=plan[0]['_id'])
+    else:
+        stripe_api.update_subscription_end_period(user_plan['provider_id'], False)
+        set_expires_at(id=pk, expires_at="")
         
     return JsonResponse({'success': True})
     
