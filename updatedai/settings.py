@@ -25,8 +25,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config("SECRET_KEY")
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [
+    '43.207.81.2',                     
+    'ec2-43-207-81-2.ap-northeast-1.compute.amazonaws.com',
+    'localhost',                      
+    '127.0.0.1',                      
+]
 
 # Application definition
 
@@ -36,6 +40,7 @@ INSTALLED_APPS = [
     'memberships',
     'django.contrib.contenttypes',    # Add this line back
     'django.contrib.messages',
+    'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
     "corsheaders",
@@ -175,17 +180,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOWED_ORIGINS = [
-    "https://upy.ai",  # adjust the protocol (http/https) as needed
-    'https://api.upy.ai',
-    'http://localhost:8083'
-]
 
 CORS_ORIGIN_WHITELIST = []
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 OPENAI_API_KEY = config('OPENAI_API_KEY')
 
@@ -217,3 +217,8 @@ EMAIL_FROM_NAME = config("EMAIL_FROM_NAME")
 
 # Duffel
 DUFFEL_ACCESS_TOKEN = config("DUFFEL_ACCESS_TOKEN")
+
+STRIPE_SECRET_KEY = config("STRIPE_SECRET_KEY")
+STRIPE_PUBLISHABLE_KEY = config("STRIPE_PUBLISHABLE_KEY")
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
