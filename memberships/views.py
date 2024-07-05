@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from authentication.decorator import require_auth
 # from .service import 
 import json
-from .convex import get_plans, create_plan, update_user_plan_plan_id, set_expires_at, update_plan, get_customer, activate_plan, activate_user_plan,delete_user_plan, deactivate_plan, get_plan_by_id, get_user_plans, get_user_plan, get_user_plan_by_plan_id, get_stripe_customer_from_user_id, create_customer, create_user_plan
+from .convex import get_plans, update_user_plan_invoice, update_user_plan, get_or_create_user_plan_invoice, create_plan, update_user_plan_plan_id, get_user_plan_by_provider_id, set_expires_at, update_plan, get_customer, activate_plan, activate_user_plan,delete_user_plan, deactivate_plan, get_plan_by_id, get_user_plans, get_user_plan, get_user_plan_by_plan_id, get_stripe_customer_from_user_id, create_customer, create_user_plan
 from memberships import stripe_api
 from datetime import datetime, timezone
 from dateutil.relativedelta import relativedelta
@@ -283,3 +283,39 @@ def upgrade_subscription_view(request, pk):
         
     return JsonResponse({'success': True})
     
+@csrf_exempt
+@require_http_methods(["POST"])
+def stripe_incoming_view(request):
+    try:
+        payment_intent = stripe_api.construct_webhook_event(
+            payload=request.body.decode('utf-8'),
+            signature=request.headers['Stripe-Signature'],
+        )
+        if payment_intent:
+            user_plan = get_user_plan_by_provider_id(provider_id=payment_intent['id'])
+            if 'invoice' in payment_intent['type']:
+                invoice = get_or_create_user_plan_invoice(
+                    invoice_id=payment_intent['invoice_id'],
+                    provider_id=payment_intent['id'],
+                    user_plan_id=user_plan[0].get('_id')
+                )
+                status = payment_intent['status']
+                paid = payment_intent.get('paid', invoice[0].get('paid'))
+                amount = payment_intent.get('amount', invoice[0].get('amount'))
+                currency = payment_intent.get('currency', invoice[0].get('currency'))
+                update_user_plan_invoice(id=invoice[0].get('_id'), status=status, paid=paid, amount=amount, currency=currency)
+                
+            if 'customer.subscription' in payment_intent['type'] or 'payment_intent' in payment_intent['type']:
+                complete = payment_intent.get('complete', user_plan[0].get('complete'))
+                status = payment_intent['status']
+                update_user_plan(id=user_plan[0].get('_id'), complete=complete, status=status)
+                if user_plan[0].get('status') != 'past_due':
+                    if user_plan[0].get('expires_at') and not payment_intent.get('expires_at'):
+                        set_expires_at(id=user_plan[0].get('_id'), expires_at="")
+                    elif payment_intent.get('expires_at'):
+                        expires_at = datetime.fromtimestamp(payment_intent['expires_at']).strftime('%m/%d/%Y, %I:%M:%S %p')
+                        set_expires_at(id=user_plan[0].get('_id'), expires_at=expires_at)
+        return JsonResponse({'success': True}, status=200)
+    
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

@@ -54,7 +54,7 @@ def construct_webhook_event(payload, signature):
     data = event['data']['object']
     event_type = event['type']
     result = {}
-
+    
     if 'payment_intent' in event_type and not data.get('invoice'):
         if event_type == 'payment_intent.payment_failed':
             result['type'] = event_type
