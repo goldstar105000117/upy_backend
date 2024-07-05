@@ -73,6 +73,11 @@ def get_user_plan(id):
         'id': id
     })
     
+def get_user_plan_by_provider_id(provider_id):
+    return client.mutation('membership:getUserPlanByProviderId', {
+        'provider_id': provider_id
+    })
+    
 def get_stripe_customer_from_user_id(user_id):
     return client.mutation('membership:getStripeCustomerFromUserId', {
         'user_id': user_id
@@ -111,4 +116,27 @@ def update_user_plan_plan_id(id, plan_id):
     return client.mutation('membership:updateUserPlanPlanId', {
         'id': id,
         'plan_id': plan_id
+    })
+    
+def update_user_plan(id, complete, status):
+    return client.mutation('membership:updateUserPlan', {
+        'id': id,
+        'status': status,
+        'complete': complete
+    })
+
+def get_or_create_user_plan_invoice(invoice_id, provider_id, user_plan_id):
+    return client.mutation('membership:getOrCreateUserPlanInvoice', {
+        'invoice_id': invoice_id,
+        'provider_id': provider_id,
+        'user_plan_id': user_plan_id
+    })
+    
+def update_user_plan_invoice(id, status, paid, amount, currency):
+    return client.mutation('membership:updateUserPlanInvoice', {
+        'id': id,
+        'status': status,
+        'paid': paid,
+        'amount': amount,
+        'currency': currency
     })
