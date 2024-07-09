@@ -12,7 +12,7 @@ from django.utils import timezone as django_timezone
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def get_plans_view(request):
     result = get_plans()
     
@@ -23,7 +23,7 @@ def get_plans_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def create_plan_view(request):
     try:
         data = json.loads(request.body)
@@ -69,7 +69,7 @@ def create_plan_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def update_plan_view(request, pk):
     try:
         data = json.loads(request.body)
@@ -110,7 +110,7 @@ def update_plan_view(request, pk):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def activate_plan_view(request, pk):
     plan_data = activate_plan(id=pk)
     
@@ -121,7 +121,7 @@ def activate_plan_view(request, pk):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-# @require_auth
+@require_auth
 def deactivate_plan_view(request, pk):
     plan_data = deactivate_plan(id=pk)
     
@@ -319,3 +319,14 @@ def stripe_incoming_view(request):
     
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+@require_auth
+def get_user_plans_view(request):
+    result = get_user_plans(user_id=request.user['_id'])
+    
+    if not result:
+        return JsonResponse({'success': False, 'error': 'Failed to get user plan data'}, status=500)  
+
+    return JsonResponse({'success': True, 'result': result})
