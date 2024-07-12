@@ -6,7 +6,7 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 def create_customer(email):
     return stripe.Customer.create(email=email)
 
-def create_payment_intent(amount, customer_id, user):
+def create_payment_intent(amount, customer_id, email):
     return stripe.PaymentIntent.create(
         customer=customer_id,
         setup_future_usage='off_session',
@@ -15,7 +15,7 @@ def create_payment_intent(amount, customer_id, user):
         automatic_payment_methods={
             'enabled': True,
         },
-        metadata={'email': user.email},
+        metadata={'email': email},
     )
 
 def create_offsession_payment_intent(amount, customer_id, user):

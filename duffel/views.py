@@ -8,8 +8,8 @@ import re
 from .convex import create_new_customer, get_customer_id, save_user_transaction
 
 @csrf_exempt
-@require_http_methods(["POST"])
-@require_auth
+@require_http_methods(["GET", "POST"])
+# @require_auth
 def get_airlines_view(request):
     after = None
     limit = 50
@@ -27,21 +27,6 @@ def get_airlines_view(request):
         return JsonResponse({'success': False, 'error': 'No data found'}, status=404)
 
     return JsonResponse({'success': True, 'result': airlines_data})
-    # airlines_data = []
-
-    # if 'data' in response:
-    #     for airline in response['data']:
-    #         print(airline)
-    #         # if airline.get('logo_symbol_url') is not None and airline.get('conditions_of_carriage_url') is not None:
-    #         airlines_data.append({
-    #             'id': airline.get('id', 'No ID'),
-    #             'name': airline.get('name', 'No Name'),  
-    #             'iata_code': airline.get('iata_code', 'No IATA Code'),  
-    #             'logo_symbol_url': airline.get('logo_symbol_url', 'No Logo Symbol URL'),  
-    #             'conditions_of_carriage_url': airline.get('conditions_of_carriage_url', 'No Conditions of Carriage URL'),  
-    #         })
-    # else:
-    #     return JsonResponse({'success': False, 'error': 'Failed to retrieve data'})
 
 @csrf_exempt
 @require_http_methods(["POST"])
