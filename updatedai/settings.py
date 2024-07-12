@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.auth',            # Add this line back
     'duffel',
     'memberships',
+    'payments',
     'django.contrib.contenttypes',    # Add this line back
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -220,5 +221,7 @@ DUFFEL_ACCESS_TOKEN = config("DUFFEL_ACCESS_TOKEN")
 
 STRIPE_SECRET_KEY = config("STRIPE_SECRET_KEY")
 STRIPE_PUBLISHABLE_KEY = config("STRIPE_PUBLISHABLE_KEY")
+
+STRIPE_SIGNING_KEY = config("STRIPE_SIGNING_KEY")
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
